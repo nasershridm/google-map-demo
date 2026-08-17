@@ -29,7 +29,7 @@ class OfflineBanner extends StatelessWidget {
                 Icon(Icons.wifi_off_rounded, color: Colors.white, size: 16),
                 SizedBox(width: 8),
                 Text(
-                  'Offline Mode — GPS coordinates saved locally to SQLite',
+                  'Offline Mode — GPS coordinates saved locally',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,

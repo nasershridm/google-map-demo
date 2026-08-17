@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dndn/core/constants/app_constants.dart';
 import 'package:dndn/core/di/injection.dart';
+import 'package:dndn/core/services/connectivity_cubit.dart';
 import 'package:dndn/core/theme/theme_cubit.dart';
 import 'package:dndn/features/dashboard/presentation/pages/main_navigation_page.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_bloc.dart';
@@ -17,6 +18,7 @@ class App extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => getIt<ThemeCubit>()),
+        BlocProvider<ConnectivityCubit>(create: (_) => getIt<ConnectivityCubit>()),
         BlocProvider<TrackingBloc>(create: (_) => getIt<TrackingBloc>()),
         BlocProvider<ReportsBloc>(
           create: (_) => getIt<ReportsBloc>()..add(const LoadTripsEvent()),
@@ -46,7 +48,6 @@ class App extends StatelessWidget {
               ),
               appBarTheme: const AppBarTheme(centerTitle: true, elevation: 0),
             ),
-            // Splash is the entry point; /home leads to the main shell
             initialRoute: '/',
             routes: {
               '/': (_) => const SplashPage(),

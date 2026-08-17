@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dndn/core/widgets/offline_banner.dart';
 import 'package:dndn/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:dndn/features/reports/presentation/pages/reports_page.dart';
 import 'package:dndn/features/tracking/presentation/pages/tracking_page.dart';
@@ -33,7 +34,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     ];
 
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: pages),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const OfflineBanner(),
+            Expanded(
+              child: IndexedStack(index: _currentIndex, children: pages),
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: _navigateToIndex,
