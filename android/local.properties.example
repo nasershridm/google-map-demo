@@ -1,0 +1,6 @@
+## This is an example local.properties file.
+## Flutter will automatically generate this file with your local sdk paths.
+## Add your Google Maps Android API Key below:
+# sdk.dir=/path/to/android/sdk
+# flutter.sdk=/path/to/flutter
+MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY_HERE
