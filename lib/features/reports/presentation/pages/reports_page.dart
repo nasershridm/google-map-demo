@@ -8,6 +8,7 @@ import 'package:dndn/features/reports/domain/use_cases/trip_use_cases.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_event.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_state.dart';
+import 'package:dndn/features/reports/presentation/pages/incident_detail_page.dart';
 import 'package:dndn/features/reports/presentation/pages/trip_detail_page.dart';
 import 'package:dndn/features/reports/presentation/widgets/trip_list_item.dart';
 
@@ -307,6 +308,13 @@ class _IncidentsTab extends StatelessWidget {
                 ],
               ),
               child: ListTile(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => IncidentDetailPage(incident: incident),
+                    ),
+                  );
+                },
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
@@ -353,21 +361,32 @@ class _IncidentsTab extends StatelessWidget {
                       ),
                   ],
                 ),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    incident.type.arabicName,
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        incident.type.arabicName,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        textDirection: TextDirection.rtl,
+                      ),
                     ),
-                    textDirection: TextDirection.rtl,
-                  ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 20,
+                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                    ),
+                  ],
                 ),
               ),
             ),

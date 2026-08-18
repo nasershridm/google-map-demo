@@ -115,6 +115,18 @@ class TripRepositoryImpl implements TripRepository {
   }
 
   @override
+  Future<List<IncidentReport>> getIncidentReportsForTrip(String tripId) async {
+    try {
+      final models = await localDataSource.getIncidentReportsForTrip(tripId);
+      return models.map((m) => m.toEntity()).toList();
+    } catch (e) {
+      throw DatabaseException(
+        'Failed to fetch incident reports for trip $tripId: $e',
+      );
+    }
+  }
+
+  @override
   Future<void> deleteIncidentReport(int id) async {
     try {
       await localDataSource.deleteIncidentReport(id);

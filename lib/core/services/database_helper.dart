@@ -19,6 +19,7 @@ class DatabaseHelper {
       path,
       version: AppConstants.databaseVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
       onConfigure: _onConfigure,
     );
   }
@@ -63,11 +64,13 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE incident_reports (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        trip_id TEXT,
         type TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
         timestamp INTEGER NOT NULL,
-        notes TEXT
+        notes TEXT,
+        FOREIGN KEY (trip_id) REFERENCES trips (id) ON DELETE SET NULL
       )
     ''');
 
@@ -84,6 +87,18 @@ class DatabaseHelper {
     await db.execute(
       'CREATE INDEX idx_incident_reports_timestamp ON incident_reports (timestamp DESC)',
     );
+    await db.execute(
+      'CREATE INDEX idx_incident_reports_trip_id ON incident_reports (trip_id)',
+    );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE incident_reports ADD COLUMN trip_id TEXT');
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_incident_reports_trip_id ON incident_reports (trip_id)',
+      );
+    }
   }
 
   Future<void> close() async {

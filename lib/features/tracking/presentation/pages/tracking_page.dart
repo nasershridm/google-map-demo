@@ -6,6 +6,8 @@ import 'package:dndn/core/theme/theme_switch_button.dart';
 import 'package:dndn/features/reports/domain/entities/incident_report.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_event.dart';
+import 'package:dndn/features/reports/presentation/bloc/reports_state.dart';
+import 'package:dndn/features/reports/presentation/pages/incident_detail_page.dart';
 import 'package:dndn/features/reports/presentation/widgets/incident_report_bottom_sheet.dart';
 import 'package:dndn/features/tracking/domain/use_cases/tracking_use_cases.dart';
 import 'package:dndn/features/tracking/presentation/bloc/tracking_bloc.dart';
@@ -33,12 +35,16 @@ class TrackingPage extends StatelessWidget {
       } catch (_) {}
     }
 
+    final String? activeTripId =
+        state is TrackingActive ? state.tripId : null;
+
     if (!context.mounted) return;
 
     final report = await IncidentReportBottomSheet.show(
       context,
       latitude: lat,
       longitude: lng,
+      tripId: activeTripId,
     );
 
     if (report != null && context.mounted) {
@@ -49,14 +55,30 @@ class TrackingPage extends StatelessWidget {
             children: [
               Icon(_incidentIcon(report.type), color: Colors.white, size: 18),
               const SizedBox(width: 8),
-              Text('${report.type.displayName} reported successfully'),
+              Expanded(
+                child: Text(
+                  '${report.type.displayName} reported',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
+          ),
+          action: SnackBarAction(
+            label: 'DETAILS',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => IncidentDetailPage(incident: report),
+                ),
+              );
+            },
           ),
           backgroundColor: _incidentColor(report.type),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(12),
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -190,10 +212,29 @@ class TrackingPage extends StatelessWidget {
             children: [
               // 1. Google Map
               Positioned.fill(
-                child: TrackingMapView(
-                  routePoints: isTracking ? state.routePoints : const [],
-                  currentPoint: isTracking ? state.currentPoint : null,
-                  isTracking: isTracking,
+                child: BlocBuilder<ReportsBloc, ReportsState>(
+                  builder: (context, reportsState) {
+                    final incidents = (isTracking && reportsState is ReportsLoaded)
+                        ? reportsState.incidentReports
+                            .where((r) => r.tripId == state.tripId)
+                            .toList()
+                        : const <IncidentReport>[];
+
+                    return TrackingMapView(
+                      routePoints: isTracking ? state.routePoints : const [],
+                      currentPoint: isTracking ? state.currentPoint : null,
+                      isTracking: isTracking,
+                      incidents: incidents,
+                      onIncidentTap: (incident) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                IncidentDetailPage(incident: incident),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
 
@@ -207,7 +248,6 @@ class TrackingPage extends StatelessWidget {
                     elapsedSeconds: state.elapsedSeconds,
                     distanceMeters: state.totalDistanceMeters,
                     currentSpeedKmh: state.currentSpeedKmh,
-                    maxSpeedKmh: state.maxSpeedKmh,
                     isPaused: isPaused,
                   ),
                 ),

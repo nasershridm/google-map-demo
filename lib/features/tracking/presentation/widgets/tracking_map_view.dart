@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:dndn/core/utils/incident_marker_helper.dart';
+import 'package:dndn/features/reports/domain/entities/incident_report.dart';
 import 'package:dndn/features/tracking/domain/entities/location_point.dart';
 
 class TrackingMapView extends StatefulWidget {
   final List<LocationPoint> routePoints;
   final LocationPoint? currentPoint;
   final bool isTracking;
+  final List<IncidentReport> incidents;
+  final void Function(IncidentReport)? onIncidentTap;
 
   const TrackingMapView({
     super.key,
     required this.routePoints,
     this.currentPoint,
     this.isTracking = false,
+    this.incidents = const [],
+    this.onIncidentTap,
   });
 
   @override
@@ -20,11 +26,29 @@ class TrackingMapView extends StatefulWidget {
 
 class _TrackingMapViewState extends State<TrackingMapView> {
   GoogleMapController? _mapController;
+  final Map<IncidentType, BitmapDescriptor> _customPins = {};
 
   static const CameraPosition _defaultInitialPosition = CameraPosition(
     target: LatLng(30.0444, 31.2357), // Default Cairo coordinates
     zoom: 15.0,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCustomPins();
+  }
+
+  Future<void> _loadCustomPins() async {
+    for (final type in IncidentType.values) {
+      final pin = await IncidentMarkerHelper.getCustomPin(type);
+      if (mounted) {
+        setState(() {
+          _customPins[type] = pin;
+        });
+      }
+    }
+  }
 
   @override
   void didUpdateWidget(covariant TrackingMapView oldWidget) {
@@ -68,6 +92,7 @@ class _TrackingMapViewState extends State<TrackingMapView> {
   Set<Marker> _buildMarkers() {
     final markers = <Marker>{};
 
+    // 1. Start point marker
     if (widget.routePoints.isNotEmpty) {
       final start = widget.routePoints.first;
       markers.add(
@@ -82,6 +107,7 @@ class _TrackingMapViewState extends State<TrackingMapView> {
       );
     }
 
+    // 2. Current tracking position marker
     if (widget.currentPoint != null) {
       markers.add(
         Marker(
@@ -98,6 +124,22 @@ class _TrackingMapViewState extends State<TrackingMapView> {
             snippet:
                 'Speed: ${widget.currentPoint!.speed.toStringAsFixed(1)} km/h',
           ),
+        ),
+      );
+    }
+
+    // 3. Incident alert markers with specific pins based on type
+    for (final incident in widget.incidents) {
+      final customPin = _customPins[incident.type];
+      markers.add(
+        IncidentMarkerHelper.buildMarker(
+          incident: incident,
+          customIcon: customPin,
+          onTap: () {
+            if (widget.onIncidentTap != null) {
+              widget.onIncidentTap!(incident);
+            }
+          },
         ),
       );
     }

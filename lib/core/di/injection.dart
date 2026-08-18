@@ -109,6 +109,9 @@ Future<void> configureDependencies() async {
   getIt.registerLazySingleton(
     () => DeleteIncidentReportUseCase(getIt<TripRepository>()),
   );
+  getIt.registerLazySingleton(
+    () => GetIncidentsForTripUseCase(getIt<TripRepository>()),
+  );
 
   // -------------------------------------------------------------
   // 6. Blocs (Factory)

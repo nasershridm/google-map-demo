@@ -33,6 +33,9 @@ abstract class TripRepository {
   /// Fetches all recorded incident reports.
   Future<List<IncidentReport>> getIncidentReports();
 
+  /// Fetches recorded incident reports associated with a specific trip.
+  Future<List<IncidentReport>> getIncidentReportsForTrip(String tripId);
+
   /// Deletes an incident report by ID.
   Future<void> deleteIncidentReport(int id);
 }

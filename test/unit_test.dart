@@ -1,7 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dndn/core/utils/formatters.dart';
 import 'package:dndn/core/utils/location_calculator.dart';
+import 'package:dndn/features/reports/data/models/incident_report_model.dart';
 import 'package:dndn/features/reports/data/models/trip_model.dart';
+import 'package:dndn/features/reports/domain/entities/incident_report.dart';
 import 'package:dndn/features/tracking/data/models/location_point_model.dart';
 import 'package:dndn/features/tracking/domain/entities/location_point.dart';
 
@@ -76,7 +78,7 @@ void main() {
     });
   });
 
-  group('LocationPointModel & TripModel Serialization Tests', () {
+  group('Serialization Tests', () {
     test('LocationPointModel serializes to and from Map accurately', () {
       final now = DateTime.now();
       final point = LocationPointModel(
@@ -127,6 +129,33 @@ void main() {
       expect(fromMap.averageSpeedKmh, trip.averageSpeedKmh);
       expect(fromMap.maxSpeedKmh, trip.maxSpeedKmh);
       expect(fromMap.isCompleted, true);
+    });
+
+    test('IncidentReportModel serializes to and from Map accurately with tripId', () {
+      final now = DateTime.now();
+      final report = IncidentReportModel(
+        id: 5,
+        tripId: 'trip_xyz_789',
+        type: IncidentType.police,
+        latitude: 30.0511,
+        longitude: 31.2422,
+        timestamp: now,
+        notes: 'Checkpoint on highway',
+      );
+
+      final map = report.toMap();
+      final fromMap = IncidentReportModel.fromMap(map);
+
+      expect(fromMap.id, report.id);
+      expect(fromMap.tripId, 'trip_xyz_789');
+      expect(fromMap.type, IncidentType.police);
+      expect(fromMap.latitude, 30.0511);
+      expect(fromMap.longitude, 31.2422);
+      expect(fromMap.notes, 'Checkpoint on highway');
+      expect(
+        fromMap.timestamp.millisecondsSinceEpoch,
+        report.timestamp.millisecondsSinceEpoch,
+      );
     });
   });
 }

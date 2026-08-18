@@ -5,7 +5,6 @@ class TrackingHudCard extends StatelessWidget {
   final int elapsedSeconds;
   final double distanceMeters;
   final double currentSpeedKmh;
-  final double maxSpeedKmh;
   final bool isPaused;
 
   const TrackingHudCard({
@@ -13,7 +12,6 @@ class TrackingHudCard extends StatelessWidget {
     required this.elapsedSeconds,
     required this.distanceMeters,
     required this.currentSpeedKmh,
-    required this.maxSpeedKmh,
     this.isPaused = false,
   });
 

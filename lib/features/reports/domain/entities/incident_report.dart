@@ -46,6 +46,7 @@ extension IncidentTypeExtension on IncidentType {
 
 class IncidentReport extends Equatable {
   final int? id;
+  final String? tripId;
   final IncidentType type;
   final double latitude;
   final double longitude;
@@ -54,6 +55,7 @@ class IncidentReport extends Equatable {
 
   const IncidentReport({
     this.id,
+    this.tripId,
     required this.type,
     required this.latitude,
     required this.longitude,
@@ -64,6 +66,7 @@ class IncidentReport extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    tripId,
     type,
     latitude,
     longitude,

@@ -10,7 +10,7 @@ abstract class AppConstants {
 
   // Database
   static const String databaseName = 'location_tracking.db';
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 2;
 
   // Foreground Service / Notification
   static const String notificationChannelId = 'location_tracking_channel';

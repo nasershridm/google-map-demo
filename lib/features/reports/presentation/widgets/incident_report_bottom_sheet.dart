@@ -6,11 +6,13 @@ import 'package:dndn/features/reports/domain/entities/incident_report.dart';
 class IncidentReportBottomSheet extends StatefulWidget {
   final double latitude;
   final double longitude;
+  final String? tripId;
 
   const IncidentReportBottomSheet({
     super.key,
     required this.latitude,
     required this.longitude,
+    this.tripId,
   });
 
   /// Shows the sheet and returns the submitted [IncidentReport] or null.
@@ -18,6 +20,7 @@ class IncidentReportBottomSheet extends StatefulWidget {
     BuildContext context, {
     required double latitude,
     required double longitude,
+    String? tripId,
   }) {
     return showModalBottomSheet<IncidentReport>(
       context: context,
@@ -26,6 +29,7 @@ class IncidentReportBottomSheet extends StatefulWidget {
       builder: (_) => IncidentReportBottomSheet(
         latitude: latitude,
         longitude: longitude,
+        tripId: tripId,
       ),
     );
   }
@@ -51,6 +55,7 @@ class _IncidentReportBottomSheetState
 
     final report = IncidentReport(
       type: _selectedType!,
+      tripId: widget.tripId,
       latitude: widget.latitude,
       longitude: widget.longitude,
       timestamp: DateTime.now(),

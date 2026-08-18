@@ -81,22 +81,11 @@ class TripSummaryDialog extends StatelessWidget {
                     ],
                   ),
                   const Divider(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildMetricRow(
-                        context,
-                        'Avg Speed',
-                        AppFormatters.formatSpeed(trip.averageSpeedKmh),
-                        Icons.speed,
-                      ),
-                      _buildMetricRow(
-                        context,
-                        'Max Speed',
-                        AppFormatters.formatSpeed(trip.maxSpeedKmh),
-                        Icons.bolt,
-                      ),
-                    ],
+                  _buildMetricRow(
+                    context,
+                    'Avg Speed',
+                    AppFormatters.formatSpeed(trip.averageSpeedKmh),
+                    Icons.speed,
                   ),
                 ],
               ),

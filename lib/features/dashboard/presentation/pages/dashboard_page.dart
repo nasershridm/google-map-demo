@@ -7,6 +7,7 @@ import 'package:dndn/features/reports/domain/entities/incident_report.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_event.dart';
 import 'package:dndn/features/reports/presentation/bloc/reports_state.dart';
+import 'package:dndn/features/reports/presentation/pages/incident_detail_page.dart';
 import 'package:dndn/features/reports/presentation/widgets/trip_list_item.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -73,7 +74,6 @@ class _DashboardPageState extends State<DashboardPage> {
           int totalTrips = 0;
           double totalDistanceMeters = 0.0;
           int totalDurationSeconds = 0;
-          double maxSpeedKmh = 0.0;
 
           if (state is ReportsLoaded) {
             final metrics = state.dashboardMetrics;
@@ -81,7 +81,6 @@ class _DashboardPageState extends State<DashboardPage> {
             totalDistanceMeters =
                 (metrics['totalDistanceMeters'] as num?)?.toDouble() ?? 0.0;
             totalDurationSeconds = metrics['totalDurationSeconds'] as int? ?? 0;
-            maxSpeedKmh = (metrics['maxSpeedKmh'] as num?)?.toDouble() ?? 0.0;
           }
 
           return RefreshIndicator(
@@ -128,6 +127,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 20,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -174,38 +174,33 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // ── Metrics Grid ───────────────────────────────────────────
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.35,
+                  // ── Metrics Row / Grid ─────────────────────────────────────
+                  MetricCard(
+                    title: 'TOTAL DISTANCE',
+                    value: AppFormatters.formatDistance(totalDistanceMeters),
+                    icon: Icons.straighten_rounded,
+                    accentColor: Colors.green,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
                     children: [
-                      MetricCard(
-                        title: 'TOTAL DISTANCE',
-                        value: AppFormatters.formatDistance(totalDistanceMeters),
-                        icon: Icons.straighten_rounded,
-                        accentColor: Colors.green,
+                      Expanded(
+                        child: MetricCard(
+                          title: 'TOTAL TRIPS',
+                          value: '$totalTrips',
+                          icon: Icons.alt_route_rounded,
+                          accentColor: Colors.blueAccent,
+                        ),
                       ),
-                      MetricCard(
-                        title: 'TOTAL TRIPS',
-                        value: '$totalTrips',
-                        icon: Icons.alt_route_rounded,
-                        accentColor: Colors.blueAccent,
-                      ),
-                      MetricCard(
-                        title: 'ACTIVE TIME',
-                        value: AppFormatters.formatDuration(totalDurationSeconds),
-                        icon: Icons.timer_outlined,
-                        accentColor: Colors.orange,
-                      ),
-                      MetricCard(
-                        title: 'TOP SPEED',
-                        value: AppFormatters.formatSpeed(maxSpeedKmh),
-                        icon: Icons.bolt_rounded,
-                        accentColor: Colors.purple,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: MetricCard(
+                          title: 'ACTIVE TIME',
+                          value:
+                              AppFormatters.formatDuration(totalDurationSeconds),
+                          icon: Icons.timer_outlined,
+                          accentColor: Colors.orange,
+                        ),
                       ),
                     ],
                   ),
@@ -277,78 +272,95 @@ class _DashboardPageState extends State<DashboardPage> {
                     ...state.incidentReports.take(3).map((incident) {
                       final color = _incidentColor(incident.type);
                       final icon = _incidentIcon(incident.type);
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: color.withValues(alpha: 0.25),
-                            width: 1,
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  IncidentDetailPage(incident: incident),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: color.withValues(alpha: 0.06),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: color.withValues(alpha: 0.25),
+                              width: 1,
                             ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.06),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
                               ),
-                              child: Icon(icon, color: color, size: 18),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    incident.type.displayName,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${incident.timestamp.day}/${incident.timestamp.month}/${incident.timestamp.year}'
-                                    '  ${incident.timestamp.hour.toString().padLeft(2, '0')}:${incident.timestamp.minute.toString().padLeft(2, '0')}',
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                incident.type.arabicName,
-                                style: TextStyle(
-                                  color: color,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                textDirection: TextDirection.rtl,
+                                child: Icon(icon, color: color, size: 18),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      incident.type.displayName,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${incident.timestamp.day}/${incident.timestamp.month}/${incident.timestamp.year}'
+                                      '  ${incident.timestamp.hour.toString().padLeft(2, '0')}:${incident.timestamp.minute.toString().padLeft(2, '0')}',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  incident.type.arabicName,
+                                  style: TextStyle(
+                                    color: color,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                  textDirection: TextDirection.rtl,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                size: 18,
+                                color: colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.5),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     })

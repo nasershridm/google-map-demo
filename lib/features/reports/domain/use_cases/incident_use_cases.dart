@@ -30,3 +30,13 @@ class DeleteIncidentReportUseCase {
     return repository.deleteIncidentReport(id);
   }
 }
+
+class GetIncidentsForTripUseCase {
+  final TripRepository repository;
+
+  GetIncidentsForTripUseCase(this.repository);
+
+  Future<List<IncidentReport>> call(String tripId) async {
+    return repository.getIncidentReportsForTrip(tripId);
+  }
+}

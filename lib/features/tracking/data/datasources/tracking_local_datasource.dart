@@ -16,6 +16,7 @@ abstract class TrackingLocalDataSource {
   Future<Map<String, dynamic>> getAggregatedMetrics();
   Future<void> insertIncidentReport(IncidentReportModel report);
   Future<List<IncidentReportModel>> getAllIncidentReports();
+  Future<List<IncidentReportModel>> getIncidentReportsForTrip(String tripId);
   Future<void> deleteIncidentReport(int id);
 }
 
@@ -195,6 +196,22 @@ class TrackingLocalDataSourceImpl implements TrackingLocalDataSource {
       return results.map((m) => IncidentReportModel.fromMap(m)).toList();
     } catch (e) {
       throw DatabaseException('Failed to query incident reports: $e');
+    }
+  }
+
+  @override
+  Future<List<IncidentReportModel>> getIncidentReportsForTrip(String tripId) async {
+    try {
+      final db = await databaseHelper.database;
+      final results = await db.query(
+        'incident_reports',
+        where: 'trip_id = ?',
+        whereArgs: [tripId],
+        orderBy: 'timestamp ASC',
+      );
+      return results.map((m) => IncidentReportModel.fromMap(m)).toList();
+    } catch (e) {
+      throw DatabaseException('Failed to query incident reports for trip $tripId: $e');
     }
   }
 
